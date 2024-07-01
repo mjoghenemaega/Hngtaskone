@@ -1,11 +1,9 @@
-# api/views.py
 from django.http import JsonResponse
 import requests
-import os
 from django.conf import settings
 
 def get_client_ip(request):
-    """Get the client's IP address."""
+    #helps get the ip address of user 
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
         ip = x_forwarded_for.split(',')[0]
@@ -14,21 +12,21 @@ def get_client_ip(request):
     return ip
 
 def get_location(ip):
-    """Get location information using APIIP."""
+   # i am using this code to get the location using clients IP address 
     apiip_key = settings.LOCATIONAPI_KEY
     
     location_url = f"https://apiip.net/api/check?ip={ip}&accessKey={apiip_key}"
     response = requests.get(location_url)
     data = response.json()
     
-    city = data.get('city', 'Unknown City')
-    return city
+    location = data.get('location', 'Unknown location')
+    return location
 
-def get_weather(city):
-    """Get weather information using WeatherAPI."""
+def get_weather(location):
+  #i am using this code to get the weather
     weatherapi_key = settings.WEATHERAPI_KEY 
     
-    weather_url = f"http://api.weatherapi.com/v1/current.json?key={weatherapi_key}&q={city}&aqi=no"
+    weather_url = f"http://api.weatherapi.com/v1/current.json?key={weatherapi_key}&q={location}&aqi=no"
     response = requests.get(weather_url)
     data = response.json()
     
@@ -36,16 +34,16 @@ def get_weather(city):
     return temperature
 
 def hello(request):
-    visitor_name = request.GET.get('visitor_name', 'Guest')
+    user = request.GET.get('visitor_name', 'Guest')
     client_ip = get_client_ip(request)
     
     # Get location and weather data
-    city = get_location(client_ip)
-    temperature = get_weather(city)
+    location = get_location(client_ip)
+    temperature = get_weather(user)
     
-    response_data = {
+    context = {
         "client_ip": client_ip,
-        "location": city,
-        "greeting": f"Hello, {visitor_name}!, the temperature is {temperature} degrees Celsius in {city}"
+        "location": location,
+        "greeting": f"Hello, {user}!, the temperature is {temperature} degrees Celsius in {location}"
     }
-    return JsonResponse(response_data)
+    return JsonResponse(context)
