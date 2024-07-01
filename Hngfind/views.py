@@ -13,27 +13,39 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
-# def get_weather_and_location(ip):
-#     """Get weather and location information using WeatherAPI."""
-#     weatherapi_key = settings.WEATHERAPI_KEY
-
-#     # Get weather and location info from WeatherAPI
-#     weather_url = f"http://api.weatherapi.com/v1/current.json?key={weatherapi_key}&q={ip}&aqi=no"
-#     weather_response = requests.get(weather_url).json()
+def get_location(ip):
+    """Get location information using APIIP."""
+    apiip_key = settings.LOCATIONAPI_KEY
     
-#     city = weather_response['location']['name']
-#     temperature = weather_response['current']['temp_c']
+    location_url = f"https://apiip.net/api/check?ip={ip}&accessKey={apiip_key}"
+    response = requests.get(location_url)
+    data = response.json()
+    
+    city = data.get('city', 'Unknown City')
+    return city
 
-#     return city, temperature
+def get_weather(city):
+    """Get weather information using WeatherAPI."""
+    weatherapi_key = settings.WEATHERAPI_KEY 
+    
+    weather_url = f"http://api.weatherapi.com/v1/current.json?key={weatherapi_key}&q={city}&aqi=no"
+    response = requests.get(weather_url)
+    data = response.json()
+    
+    temperature = data['current']['temp_c']
+    return temperature
 
 def hello(request):
     visitor_name = request.GET.get('visitor_name', 'Guest')
     client_ip = get_client_ip(request)
-    # city, temperature = get_weather_and_location(client_ip)
+    
+    # Get location and weather data
+    city = get_location(client_ip)
+    temperature = get_weather(city)
     
     response_data = {
         "client_ip": client_ip,
-        # "location": city,
-        # "greeting": f"Hello, {visitor_name}!, the temperature is {temperature} degrees Celsius in {city}"
+        "location": city,
+        "greeting": f"Hello, {visitor_name}!, the temperature is {temperature} degrees Celsius in {city}"
     }
     return JsonResponse(response_data)

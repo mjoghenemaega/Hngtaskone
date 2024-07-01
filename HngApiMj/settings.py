@@ -116,6 +116,8 @@ USE_TZ = True
 
 WEATHERAPI_KEY ='d2c4f90a7481459191e174352240107'
 
+LOCATIONAPI_KEY ='bed80798-6105-438b-ac34-083caa867704'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
